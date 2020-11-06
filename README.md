@@ -55,3 +55,31 @@ Build the following endpoints. Write any additional data access helpers as neede
 Follow these steps for completing your project.
 
 - [ ] Submit a pull request to merge <firstName-lastName> Branch into master (student's  Repo). **Please don't merge your own pull request**
+
+
+SELECT
+    i.ingredient_name,
+    [is].quantity
+FROM ingredients as i
+JOIN ingredient_steps as [is]
+ON i.id = [is].ingredient_id;
+
+
+/*SELECT * FROM recipes;*/
+
+
+
+SELECT
+    i.ingredient_name,
+    [is].quantity,
+    [is].recipe_id
+FROM ingredients as i
+JOIN ingredient_steps as [is]
+ON i.id = [is].ingredient_id
+WHERE [is].recipe_id = 1
+
+select
+    s.step_order,
+    s.instruction
+FROM steps as s
+WHERE s.recipe_id = 1;
