@@ -1,57 +1,101 @@
-# Node DB4 Module Project
+### STEPS FOR DATA PERSISTANCE
 
-## Instructions
+1. Create index.js
 
-### Task 1: Set Up The Project With Git
+2. npm init -y
 
-Follow these steps to set up and work on your project:
+3. install packages: npm i colors cors dotenv express helmet knex knex-cleaner morgan sqlite3
 
-- [ ] Create a forked copy of this project.
-- [ ] Clone your OWN version of the repository (Not Lambda's by mistake!).
-- [ ] Create a new branch: git checkout -b `<firstName-lastName>`.
-- [ ] Implement the project on your newly created `<firstName-lastName>` branch, committing changes regularly.
-- [ ] Push commits: git push -u origin `<firstName-lastName>`.
+4. install nodemon npm i -D nodemon
 
-### Task 2: Minimum Viable Product
+5. update package.json - write script "server": "nodemon index.js", "start": "node index.js"
 
-Design the **data model** for a _recipe book_ application, then use `Knex migrations and seeding` functionality to build a `SQLite3` database based on the model and seed it with test data.
+6. create server.js file 
 
-The requirements for the system, as stated by the client are:
+7. create data folder
 
-- have a way to manage recipes.
-- have a way to manage ingredients.
-- a **recipe** could have more than one **ingredient** and the same **ingredient** can be used in multiple recipes. Examples are _"cup of corn flour"_ or _"gram of butter"_.
-- when saving the ingredients for a **recipe** capture the quantity required for that **ingredient** as a floating number.
-- have a way to save step by step instructions for preparing a recipe.
+8. knex init - to create knexfile.js 
 
-**Hint**: Before writing any code, write out all desired tables in the data model and determine all relationships between tables. 
+9. edit knexfile    
 
-### Migrations and Seeds
+- 9.1- edit the connection filename
+- 9.2- add migrations:  
+    migrations: {
+      directory: "./data/migrations",
+    },
+- 9.3- add seeds: 
+    seeds: {
+      directory: "./data/seeds",
+    },
+- 9.4 add useNullAsDefault: true,
+- 9.5 add pool: 
+    pool: {
+      afterCreate: (conn, done) => {
+        conn.run("PRAGMA foreign_key = ON", done);
+      },
+    },
 
-- Write a migration file that creates all tables necessary to model this data
-- Write seed files to populate the tables with test data. **Hint**: Keep your recipes *very* simple or this step could become extremely time consuming.
+10. inside of data create config.js
 
-### Data Access
+11. add the following code: 
+- 11.1- const knex = require("knex")
+- 11.2- const config = require("../knexfile")
+- 11.3- const db = knex(config.development)
+- 11.4- module.exports = db;
 
-In addition to the `migrations` and `seeding` scripts, write a data access file that **exports** an object with the following functions:
+12. create a model folder
 
-- `getRecipes()`: should return a list of all recipes in the database.
-- `getShoppingList(recipe_id)`: should return a list of all ingredients and quantities for a given recipe
-- `getInstructions(recipe_id)`: should return a list of step by step instructions for preparing a recipe
+13. inside of model folder, create name-model.js
 
-Organize and name your files anyway you see fit.
+14. create .env and add PORT
 
-### Task 3: Stretch Goals
+15. edit index.js
 
-Build the following endpoints. Write any additional data access helpers as needed.
+16. edit server.js
 
-- `GET /api/recipes/`: all recipes (without details about ingredients or steps)
-- `GET /api/recipes/:id/shoppingList`: a list of ingredients and quantites for a single recipe
-- `GET /api/recipes/:id/instructions`: a correctly ordered list of how to prepare a single recipe
-- `GET /api/ingredients/:id/recipes`: all recipes in the system that utilize a single ingredient 
+17. spin the server
 
-## Submission format
+18. create router folder 
 
-Follow these steps for completing your project.
+19. inside of router folder create name-router.js
 
-- [ ] Submit a pull request to merge <firstName-lastName> Branch into master (student's  Repo). **Please don't merge your own pull request**
+20. go inside name-model.js
+- 20.1 bring in config file - const db = require('../data/config')
+- 20.2 module.exports {// function names}
+- 20.3 write functions
+
+21. go inside name-routes.js
+- 21.1 call router - const router = require('express').Router()
+- 21.2 bring in model file - const Name = require("../models/name-model")
+- 21.3 create your routes ( CRUD)
+- 21.4 module.exports = router;
+
+22. go to server.js
+- 22.1- bring in the router file-const nameRouter = require('./routes/name-routes.js')
+- 22.2- server.use('/api/names', nameRouter)
+
+23. inside of router file, write a test end point and test it inside of postman
+
+24. run knex migrate:make create_name_table
+ 
+
+25. inside of migration folder edit the new migration
+
+26. create table and drop table
+- 26.1  knex migrate:latest
+
+27. run knex seed:make 001-cleanup
+
+28. inside of cleanup.js add this code:
+- 28.1: 
+    const cleaner = require('knex-cleaner');
+    exports.seed = function(knex) {
+    return cleaner.clean(knex, {
+        mode: 'truncate', // resets ids
+        ignoreTables: ['knex_migrations', 'knex_migrations_lock'], // don't empty migration tables
+    });
+    };
+
+29. knex seed:make 002-names (this will the information for the first table)
+
+30. knex seed:run
